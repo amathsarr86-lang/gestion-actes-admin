@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GestActs — Gestion des Actes Administratifs</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#f8f9fa;--surface:#ffffff;--surface2:#f1f3f5;--border:#e9ecef;--border2:#dee2e6;
+  --text:#212529;--text2:#6c757d;--text3:#adb5bd;
+  --accent:#1D9E75;--accent-light:#E1F5EE;--accent-dark:#085041;
+  --blue:#378ADD;--blue-light:#E6F1FB;
+  --amber:#BA7517;--amber-light:#FAEEDA;
+  --red:#A32D2D;--red-light:#FCEBEB;
+  --sidebar-w:230px;--header-h:56px;--radius:8px;--radius-lg:12px;
+}
+body{font-family:'Inter',sans-serif;font-size:13px;background:var(--bg);color:var(--text);min-height:100vh}
+.app{display:flex;flex-direction:column;height:100vh;overflow:hidden}
+.topbar{height:var(--header-h);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:14px;flex-shrink:0;z-index:100}
+.topbar-brand{font-weight:600;font-size:15px;color:var(--accent-dark);display:flex;align-items:center;gap:8px}
+.topbar-brand i{color:var(--accent);font-size:20px}
+.topbar-spacer{flex:1}
+.topbar-search{display:flex;align-items:center;gap:8px;background:var(--surface2);border:1px solid var(--border);border-radius:var(--radius);padding:6px 12px;width:280px}
+.topbar-search input{border:none;background:transparent;font-size:12px;color:var(--text);outline:none;width:100%}
+.topbar-search i{color:var(--text3);font-size:15px}
+.topbar-notif{position:relative;cursor:pointer;color:var(--text2);width:36px;height:36px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center}
+.topbar-notif:hover{background:var(--surface2)}
+.topbar-notif i{font-size:19px}
+.notif-dot{position:absolute;top:6px;right:6px;width:8px;height:8px;border-radius:50%;background:var(--accent);border:2px solid var(--surface)}
+.topbar-user{display:flex;align-items:center;gap:8px;cursor:pointer;padding:4px 8px;border-radius:var(--radius)}
+.topbar-user:hover{background:var(--surface2)}
+.topbar-avatar{width:30px;height:30px;border-radius:50%;background:var(--accent-light);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--accent-dark)}
+.topbar-user span{font-size:12px;font-weight:500;color:var(--text)}
+.body{display:flex;flex:1;overflow:hidden}
+.sidebar{width:var(--sidebar-w);background:var(--surface);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;flex-shrink:0}
+.sidebar-logo{padding:20px 16px 8px;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--text3)}
+.nav-group-title{padding:12px 16px 4px;font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--text3)}
+.nav-item{display:flex;align-items:center;gap:10px;padding:8px 14px;margin:1px 8px;border-radius:var(--radius);cursor:pointer;color:var(--text2);font-size:12.5px;transition:all .15s}
+.nav-item:hover{background:var(--surface2);color:var(--text)}
+.nav-item.active{background:var(--accent-light);color:var(--accent-dark);font-weight:500}
+.nav-item.active i{color:var(--accent)}
+.nav-item i{font-size:17px;flex-shrink:0}
+.nav-badge{margin-left:auto;background:var(--accent);color:#fff;font-size:10px;padding:1px 7px;border-radius:10px;font-weight:600}
+.sidebar-footer{margin-top:auto;padding:12px 8px;border-top:1px solid var(--border)}
+.main{flex:1;overflow-y:auto;padding:24px}
+.page{display:none}
+.page.active{display:block}
+.page-header{margin-bottom:20px}
+.page-title{font-size:18px;font-weight:600;color:var(--text);display:flex;align-items:center;gap:10px;margin-bottom:4px}
+.page-title i{font-size:20px;color:var(--accent)}
+.page-sub{font-size:12px;color:var(--text2)}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.kpi-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+.kpi-label{font-size:11px;color:var(--text2);font-weight:500;text-transform:uppercase;letter-spacing:.06em}
+.kpi-icon{width:32px;height:32px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:16px}
+.kpi-icon.green{background:var(--accent-light);color:var(--accent)}
+.kpi-icon.blue{background:var(--blue-light);color:var(--blue)}
+.kpi-icon.amber{background:var(--amber-light);color:var(--amber)}
+.kpi-val{font-size:26px;font-weight:600;color:var(--text);line-height:1;margin-bottom:6px}
+.kpi-delta{font-size:11px;display:flex;align-items:center;gap:3px}
+.delta-up{color:var(--accent)}
+.delta-dn{color:var(--red)}
+.delta-neu{color:var(--text3)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:16px}
+.card-title{font-size:11px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+.card-title a{font-size:10px;color:var(--accent);text-decoration:none;font-weight:500;letter-spacing:0;text-transform:none}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:8px}
+.bar-label{width:90px;font-size:11px;color:var(--text2);flex-shrink:0;text-align:right}
+.bar-track{flex:1;height:6px;background:var(--surface2);border-radius:3px;overflow:hidden}
+.bar-fill{height:100%;border-radius:3px;background:var(--accent)}
+.bar-fill.blue{background:var(--blue)}
+.bar-fill.amber{background:var(--amber)}
+.bar-val{width:30px;font-size:11px;color:var(--text3);text-align:right;font-weight:500}
+.badge{display:inline-flex;align-items:center;gap:4px;font-size:10px;padding:3px 8px;border-radius:6px;font-weight:600}
+.badge-green{background:var(--accent-light);color:var(--accent-dark)}
+.badge-amber{background:var(--amber-light);color:var(--amber)}
+.badge-blue{background:var(--blue-light);color:#0C447C}
+.badge-red{background:var(--red-light);color:var(--red)}
+.badge-gray{background:var(--surface2);color:var(--text2)}
+.badge i{font-size:9px}
+.recent-list{display:flex;flex-direction:column;gap:6px}
+.recent-item{display:flex;align-items:center;gap:10px;padding:9px 12px;background:var(--bg);border-radius:var(--radius);border:1px solid var(--border)}
+.ri-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3);flex-shrink:0;width:72px}
+.ri-body{flex:1;min-width:0}
+.ri-title{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ri-meta{font-size:10px;color:var(--text3);margin-top:1px}
+.toolbar{display:flex;align-items:center;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.search-box{display:flex;align-items:center;gap:6px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:7px 12px;flex:1;min-width:200px}
+.search-box input{border:none;background:transparent;font-size:12px;color:var(--text);outline:none;width:100%}
+.search-box i{color:var(--text3);font-size:15px;flex-shrink:0}
+select.filter{border:1px solid var(--border);border-radius:var(--radius);padding:7px 10px;font-size:12px;background:var(--surface);color:var(--text);cursor:pointer;outline:none}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 14px;border:1px solid var(--border2);border-radius:var(--radius);font-size:12px;background:var(--surface);color:var(--text);cursor:pointer;font-weight:500;transition:all .15s;white-space:nowrap;font-family:'Inter',sans-serif}
+.btn:hover{background:var(--surface2)}
+.btn i{font-size:14px}
+.btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
+.btn.primary:hover{background:var(--accent-dark)}
+.table-wrap{overflow-x:auto}
+table.dt{width:100%;border-collapse:collapse;font-size:12px}
+table.dt th{text-align:left;padding:8px 12px;font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--text2);border-bottom:1px solid var(--border);font-weight:600;background:var(--bg)}
+table.dt td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+table.dt tr:last-child td{border-bottom:none}
+table.dt tbody tr:hover td{background:var(--surface2)}
+.td-mono{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--text3)}
+.td-actions{display:flex;gap:4px}
+.icon-btn{width:28px;height:28px;border:1px solid var(--border);border-radius:var(--radius);display:flex;align-items:center;justify-content:center;cursor:pointer;background:var(--surface);color:var(--text2);transition:all .15s}
+.icon-btn:hover{background:var(--surface2);color:var(--text)}
+.icon-btn i{font-size:13px}
+.form-section{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:20px;margin-bottom:14px}
+.form-section-title{font-size:12px;font-weight:600;color:var(--accent-dark);margin-bottom:14px;padding-bottom:10px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px}
+.form-section-title i{font-size:14px;color:var(--accent)}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-group.full{grid-column:1/-1}
+.form-label{font-size:11px;color:var(--text2);font-weight:500}
+.form-label span{color:var(--red)}
+.form-input,.form-select,.form-textarea{border:1px solid var(--border);border-radius:var(--radius);padding:8px 11px;font-size:12px;background:var(--surface);color:var(--text);outline:none;font-family:'Inter',sans-serif;transition:border-color .15s}
+.form-input:focus,.form-select:focus,.form-textarea:focus{border-color:var(--accent);box-shadow:0 0 0 2px rgba(29,158,117,.12)}
+.form-input[readonly]{background:var(--surface2);color:var(--text3)}
+.form-textarea{resize:vertical;min-height:100px;line-height:1.6}
+.form-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:14px;border-top:1px solid var(--border);margin-top:4px}
+.doc-list{display:flex;flex-direction:column;gap:8px}
+.doc-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.doc-icon-wrap{width:40px;height:40px;border-radius:var(--radius);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.doc-icon-wrap.word{background:var(--blue-light)}
+.doc-icon-wrap.pdf{background:var(--red-light)}
+.doc-icon-wrap.word i{color:var(--blue)}
+.doc-icon-wrap.pdf i{color:var(--red)}
+.doc-body{flex:1;min-width:0}
+.doc-name{font-size:12px;font-weight:500;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.doc-meta{font-size:10px;color:var(--text3);margin-top:2px}
+.doc-size{font-size:10px;color:var(--text3);flex-shrink:0;margin-right:8px}
+.tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:16px}
+.tab{padding:8px 16px;font-size:12px;cursor:pointer;color:var(--text2);border-bottom:2px solid transparent;margin-bottom:-1px;font-weight:500}
+.tab:hover{color:var(--text)}
+.tab.active{color:var(--accent-dark);border-bottom-color:var(--accent);font-weight:600}
+.user-list{display:flex;flex-direction:column;gap:8px}
+.user-item{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg)}
+.user-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:600;flex-shrink:0}
+.av-g{background:var(--accent-light);color:var(--accent-dark)}
+.av-b{background:var(--blue-light);color:#0C447C}
+.av-a{background:var(--amber-light);color:var(--amber)}
+.av-r{background:var(--red-light);color:var(--red)}
+.user-info{flex:1}
+.user-name{font-size:12px;font-weight:500;color:var(--text)}
+.user-role{font-size:10px;color:var(--text3);margin-top:1px}
+.u-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.s-on{background:var(--accent)}
+.s-off{background:var(--border2)}
+.audit-timeline{display:flex;flex-direction:column}
+.audit-item{display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--border);align-items:flex-start}
+.audit-item:last-child{border-bottom:none}
+.audit-dot{width:10px;height:10px;border-radius:50%;margin-top:3px;flex-shrink:0}
+.ad-green{background:var(--accent)}
+.ad-blue{background:var(--blue)}
+.ad-amber{background:var(--amber)}
+.ad-red{background:var(--red)}
+.ad-gray{background:var(--text3)}
+.audit-body{flex:1}
+.audit-action{font-size:12px;color:var(--text);font-weight:500}
+.audit-who{font-size:10px;color:var(--text3);margin-top:2px;display:flex;align-items:center;gap:4px}
+.stat3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:16px}
+.sm-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;text-align:center}
+.sm-val{font-size:22px;font-weight:600;color:var(--text)}
+.sm-lbl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.07em;margin-top:3px;font-weight:500}
+.progress-bar{height:6px;background:var(--surface2);border-radius:3px;overflow:hidden;margin-bottom:4px}
+.progress-fill{height:100%;border-radius:3px;background:var(--accent)}
+.prog-row{margin-bottom:10px}
+.prog-header{display:flex;justify-content:space-between;font-size:11px;color:var(--text2);margin-bottom:4px;font-weight:500}
+.toast{position:fixed;bottom:24px;right:24px;background:var(--accent-dark);color:#fff;padding:12px 18px;border-radius:var(--radius-lg);font-size:12px;font-weight:500;display:flex;align-items:center;gap:8px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,.15);transform:translateY(80px);opacity:0;transition:all .3s}
+.toast.show{transform:translateY(0);opacity:1}
+.toast i{font-size:16px;color:#7EFFD4}
+@media(max-width:900px){.kpi-row{grid-template-columns:1fr 1fr}.grid2{grid-template-columns:1fr}.topbar-search{display:none}}
+@media(max-width:640px){.sidebar{display:none}.kpi-row{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div class="topbar-brand"><i class="ti ti-building-community"></i>GestActs</div>
+    <div class="topbar-search"><i class="ti ti-search"></i><input type="text" placeholder="Recherche globale : acte, agent, service…"></div>
+    <div class="topbar-spacer"></div>
+    <div class="topbar-notif"><i class="ti ti-bell"></i><div class="notif-dot"></div></div>
+    <div class="topbar-user">
+      <div class="topbar-avatar">AD</div>
+      <span>Amadou Diallo</span>
+      <i class="ti ti-chevron-down" style="font-size:13px;color:var(--text3)"></i>
+    </div>
+  </div>
+  <div class="body">
+    <nav class="sidebar">
+      <div class="sidebar-logo">Navigation</div>
+      <div class="nav-item active" onclick="showPage('dashboard',this)"><i class="ti ti-layout-dashboard"></i>Tableau de bord<span class="nav-badge">5</span></div>
+      <div class="nav-item" onclick="showPage('actes',this)"><i class="ti ti-file-text"></i>Gestion des actes</div>
+      <div class="nav-item" onclick="showPage('nouveau',this)"><i class="ti ti-circle-plus"></i>Nouvel acte</div>
+      <div class="nav-item" onclick="showPage('docs',this)"><i class="ti ti-file-download"></i>Documents générés</div>
+      <div class="nav-group-title">Administration</div>
+      <div class="nav-item" onclick="showPage('utilisateurs',this)"><i class="ti ti-users"></i>Utilisateurs &amp; rôles</div>
+      <div class="nav-item" onclick="showPage('audit',this)"><i class="ti ti-history"></i>Journal d'audit</div>
+      <div class="nav-item" onclick="showPage('stats',this)"><i class="ti ti-chart-bar"></i>Statistiques</div>
+      <div class="sidebar-footer">
+        <div class="nav-item"><i class="ti ti-settings"></i>Paramètres</div>
+        <div class="nav-item" style="color:var(--red)"><i class="ti ti-logout" style="color:var(--red)"></i>Déconnexion</div>
+      </div>
+    </nav>
+    <main class="main">
+
+      <!-- DASHBOARD -->
+      <div class="page active" id="page-dashboard">
+        <div class="page-header">
+          <div class="page-title"><i class="ti ti-layout-dashboard"></i>Tableau de bord</div>
+          <div class="page-sub">Bienvenue, Amadou — Vue d'ensemble de mai 2026</div>
+        </div>
+        <div class="kpi-row">
+          <div class="kpi"><div class="kpi-top"><div class="kpi-label">Actes ce mois</div><div class="kpi-icon green"><i class="ti ti-file-text"></i></div></div><div class="kpi-val">247</div><div class="kpi-delta delta-up"><i class="ti ti-trending-up" style="font-size:12px"></i>+12% vs avril</div></div>
+          <div class="kpi"><div class="kpi-top"><div class="kpi-label">En attente</div><div class="kpi-icon amber"><i class="ti ti-clock"></i></div></div><div class="kpi-val">18</div><div class="kpi-delta delta-dn"><i class="ti ti-alert-triangle" style="font-size:12px"></i>5 urgents</div></div>
+          <div class="kpi"><div class="kpi-top"><div class="kpi-label">Docs générés</div><div class="kpi-icon blue"><i class="ti ti-file-download"></i></div></div><div class="kpi-val">1 284</div><div class="kpi-delta delta-up"><i class="ti ti-trending-up" style="font-size:12px"></i>+8% vs avril</div></div>
+          <div class="kpi"><div class="kpi-top"><div class="kpi-label">Agents actifs</div><div class="kpi-icon green"><i class="ti ti-users"></i></div></div><div class="kpi-val">34</div><div class="kpi-delta delta-neu">sur 47 enregistrés</div></div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">Actes par type</div>
+            <div class="bar-row"><div class="bar-label">Délibération</div><div class="bar-track"><div class="bar-fill" style="width:78%"></div></div><div class="bar-val">78</div></div>
+            <div class="bar-row"><div class="bar-label">Arrêté</div><div class="bar-track"><div class="bar-fill" style="width:63%"></div></div><div class="bar-val">62</div></div>
+            <div class="bar-row"><div class="bar-label">Convention</div><div class="bar-track"><div class="bar-fill blue" style="width:49%"></div></div><div class="bar-val">48</div></div>
+            <div class="bar-row"><div class="bar-label">Décision</div><div class="bar-track"><div class="bar-fill blue" style="width:36%"></div></div><div class="bar-val">35</div></div>
+            <div class="bar-row"><div class="bar-label">Autre</div><div class="bar-track"><div class="bar-fill amber" style="width:24%"></div></div><div class="bar-val">24</div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Actes récents</div>
+            <div class="recent-list">
+              <div class="recent-item"><div class="ri-num">#2024-247</div><div class="ri-body"><div class="ri-title">Délibération budgétaire Q2</div><div class="ri-meta">DG Finances · il y a 2h</div></div><span class="badge badge-green"><i class="ti ti-check"></i>Signé</span></div>
+              <div class="recent-item"><div class="ri-num">#2024-246</div><div class="ri-body"><div class="ri-title">Arrêté de nomination — chef service</div><div class="ri-meta">DRH · il y a 5h</div></div><span class="badge badge-amber"><i class="ti ti-clock"></i>En cours</span></div>
+              <div class="recent-item"><div class="ri-num">#2024-245</div><div class="ri-body"><div class="ri-title">Convention partenariat ONG Alpha</div><div class="ri-meta">Affaires sociales · hier</div></div><span class="badge badge-blue"><i class="ti ti-circle-check"></i>Validé</span></div>
+              <div class="recent-item"><div class="ri-num">#2024-244</div><div class="ri-body"><div class="ri-title">Décision attribution marché 2024-08</div><div class="ri-meta">DAF · hier</div></div><span class="badge badge-red"><i class="ti ti-x"></i>Rejeté</span></div>
+              <div class="recent-item"><div class="ri-num">#2024-243</div><div class="ri-body"><div class="ri-title">Plan d'action climatique</div><div class="ri-meta">Environnement · avant-hier</div></div><span class="badge badge-green"><i class="ti ti-check"></i>Signé</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ACTES -->
+      <div class="page" id="page-actes">
+        <div class="page-header">
+          <div class="page-title"><i class="ti ti-file-text"></i>Gestion des actes</div>
+          <div class="page-sub">Recherche, consultation et gestion de l'ensemble des actes — 247 ce mois</div>
+        </div>
+        <div class="toolbar">
+          <div class="search-box"><i class="ti ti-search"></i><input type="text" placeholder="Rechercher par numéro, objet, service, agent…"></div>
+          <select class="filter"><option>Tous les types</option><option>Délibération</option><option>Arrêté</option><option>Convention</option><option>Décision</option></select>
+          <select class="filter"><option>Tous statuts</option><option>Signé</option><option>En cours</option><option>Validé</option><option>Rejeté</option></select>
+          <button class="btn" onclick="toast('Export Excel en cours…')"><i class="ti ti-table-export"></i>Export Excel</button>
+          <button class="btn primary" onclick="showPage('nouveau',document.querySelectorAll('.nav-item')[2])"><i class="ti ti-plus"></i>Nouvel acte</button>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div class="table-wrap">
+            <table class="dt">
+              <thead><tr><th>Numéro</th><th>Type</th><th>Objet</th><th>Service</th><th>Agent</th><th>Date</th><th>Statut</th><th>Actions</th></tr></thead>
+              <tbody>
+                <tr><td class="td-mono">#2024-247</td><td>Délibération</td><td>Budget Q2 2026</td><td>DG Finances</td><td>A. Diallo</td><td>23/05/2026</td><td><span class="badge badge-green"><i class="ti ti-check"></i>Signé</span></td><td><div class="td-actions"><div class="icon-btn" title="Voir"><i class="ti ti-eye"></i></div><div class="icon-btn" title="PDF" onclick="toast('PDF généré : Délibération_2024-247.pdf')"><i class="ti ti-file-type-pdf"></i></div><div class="icon-btn" title="Word" onclick="toast('Word généré : Délibération_2024-247.docx')"><i class="ti ti-file-type-doc"></i></div><div class="icon-btn" title="Modifier"><i class="ti ti-edit"></i></div></div></td></tr>
+                <tr><td class="td-mono">#2024-246</td><td>Arrêté</td><td>Nomination chef de service</td><td>DRH</td><td>F. Ndiaye</td><td>23/05/2026</td><td><span class="badge badge-amber"><i class="ti ti-clock"></i>En cours</span></td><td><div class="td-actions"><div class="icon-btn"><i class="ti ti-eye"></i></div><div class="icon-btn" onclick="toast('PDF généré : Arrêté_2024-246.pdf')"><i class="ti ti-file-type-pdf"></i></div><div class="icon-btn" onclick="toast('Word généré : Arrêté_2024-246.docx')"><i class="ti ti-file-type-doc"></i></div><div class="icon-btn"><i class="ti ti-edit"></i></div></div></td></tr>
+                <tr><td class="td-mono">#2024-245</td><td>Convention</td><td>Partenariat ONG Alpha</td><td>Aff. sociales</td><td>M. Sarr</td><td>22/05/2026</td><td><span class="badge badge-blue"><i class="ti ti-circle-check"></i>Validé</span></td><td><div class="td-actions"><div class="icon-btn"><i class="ti ti-eye"></i></div><div class="icon-btn" onclick="toast('PDF généré')"><i class="ti ti-file-type-pdf"></i></div><div class="icon-btn" onclick="toast('Word généré')"><i class="ti ti-file-type-doc"></i></div><div class="icon-btn"><i class="ti ti-edit"></i></div></div></td></tr>
+                <tr><td class="td-mono">#2024-244</td><td>Décision</td><td>Attribution marché 2024-08</td><td>DAF</td><td>A. Bâ</td><td>21/05/2026</td><td><span class="badge badge-red"><i class="ti ti-x"></i>Rejeté</span></td><td><div class="td-actions"><div class="icon-btn"><i class="ti ti-eye"></i></div><div class="icon-btn" onclick="toast('PDF généré')"><i class="ti ti-file-type-pdf"></i></div><div class="icon-btn" onclick="toast('Word généré')"><i class="ti ti-file-type-doc"></i></div><div class="icon-btn"><i class="ti ti-edit"></i></div></div></td></tr>
+                <tr><td class="td-mono">#2024-243</td><td>Délibération</td><td>Plan d'action climatique</td><td>Environnement</td><td>K. Sow</td><td>20/05/2026</td><td><span class="badge badge-green"><i class="ti ti-check"></i>Signé</span></td><td><div class="td-actions"><div class="icon-btn"><i class="ti ti-eye"></i></div><div class="icon-btn" onclick="toast('PDF généré')"><i class="ti ti-file-type-pdf"></i></div><div class="icon-btn" onclick="toast('Word généré')"><i class="ti ti-file-type-doc"></i></div><div class="icon-btn"><i class="ti ti-edit"></i></div></div></td></tr>
+                <tr><td class="td-mono">#2024-242</td><td>Arrêté</td><td>Règlement intérieur 2026</td><td>Secrétariat</td><td>M. Sarr</td><td>19/05/2026</td><td><span class="badge badge-green"><i class="ti ti-check"></i>Signé</span></td><td><div class="td-actions"><div class="icon-btn"><i class="ti ti-eye"></i></div><div class="icon-btn" onclick="toast('PDF généré')"><i class="ti ti-file-type-pdf"></i></div><div class="icon-btn" onclick="toast('Word généré')"><i class="ti ti-file-type-doc"></i></div><div class="icon-btn"><i class="ti ti-edit"></i></div></div></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- NOUVEL ACTE -->
+      <div class="page" id="page-nouveau">
+        <div class="page-header">
+          <div class="page-title"><i class="ti ti-circle-plus"></i>Nouvel acte</div>
+          <div class="page-sub">Saisie guidée — les champs marqués <span style="color:var(--red)">*</span> sont obligatoires</div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title"><i class="ti ti-info-circle"></i>Informations générales</div>
+          <div class="form-grid">
+            <div class="form-group"><label class="form-label">Type d'acte <span>*</span></label><select class="form-select"><option>Délibération</option><option>Arrêté</option><option>Convention</option><option>Décision</option></select></div>
+            <div class="form-group"><label class="form-label">Numéro (auto-généré)</label><input class="form-input" type="text" value="#2024-248" readonly></div>
+            <div class="form-group full"><label class="form-label">Objet de l'acte <span>*</span></label><input class="form-input" type="text" placeholder="Ex. : Délibération portant adoption du budget primitif 2026…"></div>
+            <div class="form-group"><label class="form-label">Service émetteur <span>*</span></label><select class="form-select"><option>DG Finances</option><option>DRH</option><option>Affaires sociales</option><option>DAF</option><option>Environnement</option><option>Secrétariat général</option></select></div>
+            <div class="form-group"><label class="form-label">Agent responsable <span>*</span></label><select class="form-select"><option>Amadou Diallo</option><option>Fatou Ndiaye</option><option>Moussa Sarr</option><option>Aïssatou Bâ</option><option>Khady Sow</option></select></div>
+            <div class="form-group"><label class="form-label">Date de l'acte <span>*</span></label><input class="form-input" type="date" value="2026-05-24"></div>
+            <div class="form-group"><label class="form-label">Délai de traitement</label><select class="form-select"><option>Standard (5 jours)</option><option>Urgent (2 jours)</option><option>Immédiat (24h)</option></select></div>
+          </div>
+        </div>
+        <div class="form-section">
+          <div class="form-section-title"><i class="ti ti-file-text"></i>Contenu de l'acte</div>
+          <div class="form-grid">
+            <div class="form-group full"><label class="form-label">Corps de l'acte <span>*</span></label><textarea class="form-textarea" placeholder="Rédigez ici le contenu complet de l'acte. Le moteur de génération produira automatiquement le Word et le PDF à partir de ce texte et du template sélectionné…" style="min-height:140px"></textarea></div>
+            <div class="form-group"><label class="form-label">Template document</label><select class="form-select"><option>Template Délibération v3</option><option>Template Arrêté standard</option><option>Template Convention bilatérale</option><option>Template Décision administrative</option></select></div>
+            <div class="form-group"><label class="form-label">Pièces jointes</label><button class="btn" style="width:100%;justify-content:center"><i class="ti ti-upload"></i>Joindre des fichiers</button></div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button class="btn" onclick="toast('Brouillon enregistré')"><i class="ti ti-device-floppy"></i>Enregistrer brouillon</button>
+          <button class="btn" onclick="toast('Prévisualisation en cours…')"><i class="ti ti-eye"></i>Prévisualiser</button>
+          <button class="btn primary" onclick="toast('Acte #2024-248 soumis — Word et PDF générés !')"><i class="ti ti-send"></i>Générer &amp; Soumettre</button>
+        </div>
+      </div>
+
+      <!-- DOCUMENTS -->
+      <div class="page" id="page-docs">
+        <div class="page-header">
+          <div class="page-title"><i class="ti ti-file-download"></i>Documents générés</div>
+          <div class="page-sub">Bibliothèque des Word et PDF produits automatiquement — 1 284 documents</div>
+        </div>
+        <div class="toolbar">
+          <div class="search-box"><i class="ti ti-search"></i><input type="text" placeholder="Rechercher un document…"></div>
+          <select class="filter"><option>Tous les formats</option><option>Word (.docx)</option><option>PDF (.pdf)</option></select>
+        </div>
+        <div class="tabs">
+          <div class="tab active" onclick="switchTab(this)">Tous (1 284)</div>
+          <div class="tab" onclick="switchTab(this)">Word (641)</div>
+          <div class="tab" onclick="switchTab(this)">PDF (643)</div>
+        </div>
+        <div class="doc-list">
+          <div class="doc-item"><div class="doc-icon-wrap word"><i class="ti ti-file-type-doc"></i></div><div class="doc-body"><div class="doc-name">Délibération_2024-247_Budget_Q2.docx</div><div class="doc-meta">23/05/2026 10h24 · DG Finances · A. Diallo</div></div><div class="doc-size">42 Ko</div><div class="td-actions"><div class="icon-btn" onclick="toast('Téléchargement : Délibération_2024-247.docx')"><i class="ti ti-download"></i></div><div class="icon-btn"><i class="ti ti-eye"></i></div></div></div>
+          <div class="doc-item"><div class="doc-icon-wrap pdf"><i class="ti ti-file-type-pdf"></i></div><div class="doc-body"><div class="doc-name">Délibération_2024-247_Budget_Q2.pdf</div><div class="doc-meta">23/05/2026 10h24 · DG Finances · A. Diallo</div></div><div class="doc-size">218 Ko</div><div class="td-actions"><div class="icon-btn" onclick="toast('Téléchargement : Délibération_2024-247.pdf')"><i class="ti ti-download"></i></div><div class="icon-btn"><i class="ti ti-eye"></i></div></div></div>
+          <div class="doc-item"><div class="doc-icon-wrap word"><i class="ti ti-file-type-doc"></i></div><div class="doc-body"><div class="doc-name">Arrêté_2024-246_Nomination_Chef_Service.docx</div><div class="doc-meta">23/05/2026 08h11 · DRH · F. Ndiaye</div></div><div class="doc-size">38 Ko</div><div class="td-actions"><div class="icon-btn" onclick="toast('Téléchargement lancé')"><i class="ti ti-download"></i></div><div class="icon-btn"><i class="ti ti-eye"></i></div></div></div>
+          <div class="doc-item"><div class="doc-icon-wrap pdf"><i class="ti ti-file-type-pdf"></i></div><div class="doc-body"><div class="doc-name">Convention_2024-245_Partenariat_ONG_Alpha.pdf</div><div class="doc-meta">22/05/2026 16h42 · Affaires sociales · M. Sarr</div></div><div class="doc-size">304 Ko</div><div class="td-actions"><div class="icon-btn" onclick="toast('Téléchargement lancé')"><i class="ti ti-download"></i></div><div class="icon-btn"><i class="ti ti-eye"></i></div></div></div>
+          <div class="doc-item"><div class="doc-icon-wrap word"><i class="ti ti-file-type-doc"></i></div><div class="doc-body"><div class="doc-name">Délibération_2024-243_Plan_Climatique.docx</div><div class="doc-meta">20/05/2026 14h05 · Environnement · K. Sow</div></div><div class="doc-size">51 Ko</div><div class="td-actions"><div class="icon-btn" onclick="toast('Téléchargement lancé')"><i class="ti ti-download"></i></div><div class="icon-btn"><i class="ti ti-eye"></i></div></div></div>
+        </div>
+      </div>
+
+      <!-- UTILISATEURS -->
+      <div class="page" id="page-utilisateurs">
+        <div class="page-header">
+          <div class="page-title"><i class="ti ti-users"></i>Utilisateurs &amp; rôles</div>
+          <div class="page-sub">Gestion des accès RBAC — rôles granulaires par service et fonction</div>
+        </div>
+        <div style="display:flex;justify-content:flex-end;margin-bottom:14px"><button class="btn primary" onclick="toast('Formulaire d\'ajout d\'agent ouvert')"><i class="ti ti-user-plus"></i>Ajouter un agent</button></div>
+        <div class="user-list">
+          <div class="user-item"><div class="user-av av-g">AD</div><div class="user-info"><div class="user-name">Amadou Diallo</div><div class="user-role">Administrateur · DG Finances · amadou.diallo@gestacts.sn</div></div><span class="badge badge-green">Admin</span><div class="td-actions" style="margin-left:8px"><div class="icon-btn"><i class="ti ti-edit"></i></div></div><div class="u-dot s-on" title="En ligne" style="margin-left:8px"></div></div>
+          <div class="user-item"><div class="user-av av-b">FN</div><div class="user-info"><div class="user-name">Fatou Ndiaye</div><div class="user-role">Rédactrice · DRH · fatou.ndiaye@gestacts.sn</div></div><span class="badge badge-blue">Rédacteur</span><div class="td-actions" style="margin-left:8px"><div class="icon-btn"><i class="ti ti-edit"></i></div></div><div class="u-dot s-on" title="En ligne" style="margin-left:8px"></div></div>
+          <div class="user-item"><div class="user-av av-a">MS</div><div class="user-info"><div class="user-name">Moussa Sarr</div><div class="user-role">Valideur · Secrétariat général · moussa.sarr@gestacts.sn</div></div><span class="badge badge-amber">Valideur</span><div class="td-actions" style="margin-left:8px"><div class="icon-btn"><i class="ti ti-edit"></i></div></div><div class="u-dot s-on" title="En ligne" style="margin-left:8px"></div></div>
+          <div class="user-item"><div class="user-av av-g">AB</div><div class="user-info"><div class="user-name">Aïssatou Bâ</div><div class="user-role">Archiviste · DAF · aissatou.ba@gestacts.sn</div></div><span class="badge badge-blue">Archiviste</span><div class="td-actions" style="margin-left:8px"><div class="icon-btn"><i class="ti ti-edit"></i></div></div><div class="u-dot s-off" title="Hors ligne" style="margin-left:8px"></div></div>
+          <div class="user-item"><div class="user-av av-r">KS</div><div class="user-info"><div class="user-name">Khady Sow</div><div class="user-role">Lectrice · Affaires sociales · khady.sow@gestacts.sn</div></div><span class="badge badge-gray">Lecteur</span><div class="td-actions" style="margin-left:8px"><div class="icon-btn"><i class="ti ti-edit"></i></div></div><div class="u-dot s-off" title="Hors ligne" style="margin-left:8px"></div></div>
+        </div>
+      </div>
+
+      <!-- AUDIT -->
+      <div class="page" id="page-audit">
+        <div class="page-header">
+          <div class="page-title"><i class="ti ti-history"></i>Journal d'audit</div>
+          <div class="page-sub">Traçabilité complète et immuable — qui a fait quoi et quand</div>
+        </div>
+        <div class="toolbar">
+          <div class="search-box"><i class="ti ti-search"></i><input type="text" placeholder="Filtrer par agent, numéro d'acte, action…"></div>
+          <select class="filter"><option>Toutes les actions</option><option>Création</option><option>Modification</option><option>Validation</option><option>Génération PDF</option><option>Connexion</option><option>Rejet</option></select>
+          <input type="date" class="filter" value="2026-05-24" style="border:1px solid var(--border);border-radius:var(--radius);padding:7px 10px;font-size:12px;background:var(--surface);color:var(--text);outline:none">
+          <button class="btn" onclick="toast('Export journal d\'audit en cours…')"><i class="ti ti-download"></i>Exporter</button>
+        </div>
+        <div class="card">
+          <div class="audit-timeline">
+            <div class="audit-item"><div class="audit-dot ad-green"></div><div class="audit-body"><div class="audit-action">Acte #2024-247 signé et archivé</div><div class="audit-who"><i class="ti ti-user" style="font-size:11px"></i>Amadou Diallo · DG Finances · aujourd'hui 10h31</div></div><span class="badge badge-green" style="flex-shrink:0">Signature</span></div>
+            <div class="audit-item"><div class="audit-dot ad-blue"></div><div class="audit-body"><div class="audit-action">Génération automatique : Délibération_2024-247.pdf (218 Ko)</div><div class="audit-who"><i class="ti ti-robot" style="font-size:11px"></i>Système · auto · aujourd'hui 10h24</div></div><span class="badge badge-blue" style="flex-shrink:0">Génération</span></div>
+            <div class="audit-item"><div class="audit-dot ad-amber"></div><div class="audit-body"><div class="audit-action">Acte #2024-246 modifié — champ : objet</div><div class="audit-who"><i class="ti ti-user" style="font-size:11px"></i>Fatou Ndiaye · DRH · aujourd'hui 09h47</div></div><span class="badge badge-amber" style="flex-shrink:0">Modification</span></div>
+            <div class="audit-item"><div class="audit-dot ad-green"></div><div class="audit-body"><div class="audit-action">Nouvel utilisateur créé — Khady Sow (rôle : Lecteur)</div><div class="audit-who"><i class="ti ti-user" style="font-size:11px"></i>Amadou Diallo · Admin · aujourd'hui 09h12</div></div><span class="badge badge-green" style="flex-shrink:0">Création</span></div>
+            <div class="audit-item"><div class="audit-dot ad-gray"></div><div class="audit-body"><div class="audit-action">Connexion réussie depuis 41.82.xxx.xxx</div><div class="audit-who"><i class="ti ti-user" style="font-size:11px"></i>Moussa Sarr · Secrétariat · aujourd'hui 08h55</div></div><span class="badge badge-gray" style="flex-shrink:0">Connexion</span></div>
+            <div class="audit-item"><div class="audit-dot ad-red"></div><div class="audit-body"><div class="audit-action">Acte #2024-244 rejeté — motif : pièces justificatives manquantes</div><div class="audit-who"><i class="ti ti-user" style="font-size:11px"></i>Moussa Sarr · Secrétariat · hier 17h03</div></div><span class="badge badge-red" style="flex-shrink:0">Rejet</span></div>
+            <div class="audit-item"><div class="audit-dot ad-green"></div><div class="audit-body"><div class="audit-action">Acte #2024-245 validé (Convention ONG Alpha)</div><div class="audit-who"><i class="ti ti-user" style="font-size:11px"></i>Amadou Diallo · DG Finances · hier 16h50</div></div><span class="badge badge-green" style="flex-shrink:0">Validation</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- STATS -->
+      <div class="page" id="page-stats">
+        <div class="page-header">
+          <div class="page-title"><i class="ti ti-chart-bar"></i>Statistiques &amp; reporting</div>
+          <div class="page-sub">Indicateurs de performance — données temps réel — mai 2026</div>
+        </div>
+        <div class="stat3">
+          <div class="sm-card"><div class="sm-val" style="color:var(--accent)">247</div><div class="sm-lbl">Actes / mois</div></div>
+          <div class="sm-card"><div class="sm-val" style="color:var(--blue)">96%</div><div class="sm-lbl">Taux de traitement</div></div>
+          <div class="sm-card"><div class="sm-val" style="color:var(--amber)">1,8j</div><div class="sm-lbl">Délai moyen</div></div>
+        </div>
+        <div class="grid2">
+          <div class="card">
+            <div class="card-title">Progression mensuelle 2026</div>
+            <div class="prog-row"><div class="prog-header"><span>Janvier</span><span>152</span></div><div class="progress-bar"><div class="progress-fill" style="width:62%"></div></div></div>
+            <div class="prog-row"><div class="prog-header"><span>Février</span><span>178</span></div><div class="progress-bar"><div class="progress-fill" style="width:72%"></div></div></div>
+            <div class="prog-row"><div class="prog-header"><span>Mars</span><span>203</span></div><div class="progress-bar"><div class="progress-fill" style="width:82%"></div></div></div>
+            <div class="prog-row"><div class="prog-header"><span>Avril</span><span>220</span></div><div class="progress-bar"><div class="progress-fill" style="width:89%"></div></div></div>
+            <div class="prog-row"><div class="prog-header"><span style="color:var(--accent-dark);font-weight:600">Mai (en cours)</span><span style="color:var(--accent);font-weight:600">247</span></div><div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div></div>
+          </div>
+          <div class="card">
+            <div class="card-title">Actes par service</div>
+            <div class="bar-row"><div class="bar-label">DG Finances</div><div class="bar-track"><div class="bar-fill" style="width:82%"></div></div><div class="bar-val">82</div></div>
+            <div class="bar-row"><div class="bar-label">DRH</div><div class="bar-track"><div class="bar-fill" style="width:69%"></div></div><div class="bar-val">68</div></div>
+            <div class="bar-row"><div class="bar-label">Secrétariat</div><div class="bar-track"><div class="bar-fill blue" style="width:46%"></div></div><div class="bar-val">45</div></div>
+            <div class="bar-row"><div class="bar-label">Aff. sociales</div><div class="bar-track"><div class="bar-fill blue" style="width:33%"></div></div><div class="bar-val">32</div></div>
+            <div class="bar-row"><div class="bar-label">Environnement</div><div class="bar-track"><div class="bar-fill amber" style="width:20%"></div></div><div class="bar-val">20</div></div>
+            <div style="padding-top:12px;border-top:1px solid var(--border);margin-top:10px">
+              <button class="btn primary" style="width:100%;justify-content:center" onclick="toast('Rapport PDF de mai 2026 en cours de génération…')"><i class="ti ti-file-download"></i>Exporter rapport PDF complet</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<div class="toast" id="toast"><i class="ti ti-circle-check"></i><span id="toast-msg"></span></div>
+
+<script>
+function showPage(id, el) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+  var pg = document.getElementById('page-' + id);
+  if (pg) pg.classList.add('active');
+  if (el && el.classList) el.classList.add('active');
+}
+function switchTab(el) {
+  el.parentElement.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  el.classList.add('active');
+}
+var toastTimer;
+function toast(msg) {
+  var t = document.getElementById('toast');
+  document.getElementById('toast-msg').textContent = msg;
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.classList.remove('show'); }, 3000);
+}
+</script>
+</body>
+</html>
